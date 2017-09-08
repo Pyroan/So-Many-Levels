@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class World : MonoBehaviour
+public class World
 {
     int[,] topLevel;
     int[,] midLevel;
@@ -34,6 +34,36 @@ public class World : MonoBehaviour
         tmp.setBotOffset(new Vector2(botOffset.x, botOffset.y));
 
         return tmp;
+    }
+
+    public int[,] getBotLevel()
+    {
+        return botLevel;
+    }
+
+    public Vector2 getBotOffset()
+    {
+        return botOffset;
+    }
+
+    public int[,] getMidLevel()
+    {
+        return midLevel;
+    }
+
+    public Vector2 getMidOffset()
+    {
+        return midOffset;
+    }
+
+    public int[,] getTopLevel()
+    {
+        return topLevel;
+    }
+
+    public Vector2 getTopOffset()
+    {
+        return topOffset;
     }
 
     public void setTopLevel(int[,] map)
