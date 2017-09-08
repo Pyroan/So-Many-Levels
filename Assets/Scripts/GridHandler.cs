@@ -43,6 +43,11 @@ public class GridHandler : MonoBehaviour
 	 */
 	public int levelsInPlay;
 
+    /**
+     * Manages all the levels presently in play.
+     */
+    public World world;
+
 	/**
 	 * Initialization:
 	 * Fill in grids queue,
@@ -51,7 +56,8 @@ public class GridHandler : MonoBehaviour
 	 */
 	void Start ()
 	{
-		// Initialize grids queue.
+        // Initialize grids queue.
+        world = new World();
 		grids = new Queue<Grid> ();
 		// Initialize Level colors.
 		InitLevelColors ();
@@ -96,7 +102,37 @@ public class GridHandler : MonoBehaviour
 				// Create a new grid using this info.
 				GameObject newGuy = Instantiate (grid);
 				Grid newGrid = newGuy.GetComponent<Grid> ();
-				newGrid.CreateGrid (y, x, map);
+				
+                if (i == 0)
+                {
+                    world.setBotLevel(map);
+                    world.setBotOffset(new Vector2(0, 0));
+                    newGrid.CreateGrid(y, x, map);
+                }
+                if (i == 1)
+                {
+                    world.setMidLevel(map);
+                    world.setMidOffset(new Vector2(0, 0));
+                    newGrid.CreateGrid(y, x, map);
+                }
+                if (i == 2)
+                {
+                    int[,] tmpMap = newGrid.buildNextMap(world.getBotLevel(), world.getBotOffset(), world.getMidLevel(), world.getMidOffset());
+                    // Need to print the map that was built here.
+                    for (int j = 0; j < tmpMap.GetLength(0); j++)
+                    {
+                        string str = "";
+                        for (int k = 0; k < tmpMap.GetLength(1); k++)
+                        {
+                            str = str + tmpMap[j, k] + " ";
+                        }
+                        Debug.Log(str+"\n");
+                    }
+                    
+                    world.setTopLevel(map);
+                    world.setTopOffset(new Vector2(0, 0));
+                    newGrid.CreateGrid(y, x, tmpMap);
+                }
 				// set the title of the level
 				newGrid.setTitle(title);
 				// All levels start out inactive.

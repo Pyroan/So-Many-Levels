@@ -185,8 +185,21 @@ public class Grid : MonoBehaviour {
     /**
      * Attempts to create a new random level to replace the just completed level.
      */
-    int[,] buildNextMap(int[,] map1, Vector2 offset1, int[,] map2, Vector2 offset2)
+    public int[,] buildNextMap(int[,] map1, Vector2 offset1, int[,] map2, Vector2 offset2)
     {
+        Debug.Log(offset1.x + " " + offset1.y);
+        Debug.Log(offset2.x + " " + offset2.y);
+        for (int j = 0; j < map1.GetLength(0); j++)
+        {
+            string str = "";
+            for (int k = 0; k < map1.GetLength(1); k++)
+            {
+                str = str + map1[j, k] + " ";
+            }
+            Debug.Log(str + "\n");
+        }
+        Debug.Log("---");
+
         int height = Random.Range(1, 7) + 5;
         if (height % 2 == 0)
             height++;
@@ -225,7 +238,7 @@ public class Grid : MonoBehaviour {
             {
                 if (row > 0 && col > 0)
                 {
-                    if (locX < map1.GetLength(0) && locY < map2.GetLength(1))
+                    if (locX < map1.GetLength(0) && locY < map1.GetLength(1))
                     {
                         if (map1[locX, locY] == 1)
                             newMap[row, col] = 0;
@@ -246,9 +259,9 @@ public class Grid : MonoBehaviour {
             {
                 if (row > 0 && col > 0)
                 {
-                    if (locX < map1.GetLength(0) && locY < map2.GetLength(1))
+                    if (locX < map2.GetLength(0) && locY < map2.GetLength(1))
                     {
-                        if (map1[locX, locY] == 1)
+                        if (map2[locX, locY] == 1)
                             newMap[row, col] = 0;
                     }
                 }
@@ -258,9 +271,9 @@ public class Grid : MonoBehaviour {
         }
 
         // Need to slim down the walls to the new maze
-        for (int row = 0; row < height; row++)
+        for (int row = 1; row < height-1; row++)
         {
-            for (int col = 0; col < width; col++)
+            for (int col = 1; col < width-1; col++)
             {
                 if (newMap[row, col] == -1)
                 {
@@ -349,6 +362,59 @@ public class Grid : MonoBehaviour {
                             break;
                     }
                 }
+            }
+        }
+
+        // Finish filling in the border with 0
+        for (int row = 0; row < height; row++)
+        {
+            for (int col = 0; col < width; col++)
+            {
+                if (newMap[row, col] == -1)
+                {
+                    newMap[row, col] = 0;
+                }
+            }
+        }
+
+        // Remove any blocks that are in pairs, or solo
+        for (int row = 1; row < height-1; row++)
+        {
+            for (int col = 1; col < width-1; col++)
+            {
+                int total = 0;
+                int top = 0;
+                int bot = 0;
+                int left = 0;
+                int right = 0;
+
+                if (newMap[row, col - 1] == 1)
+                {
+                    top = newMap[row, col - 1] + newMap[row - 1, col - 1] + newMap[row + 1, col - 1];
+                    if (col - 1 != 0)
+                        top += newMap[row, col - 2];
+                }
+                if (newMap[row, col + 1] == 1)
+                {
+                    bot = newMap[row, col + 1] + newMap[row - 1, col + 1] + newMap[row + 1, col + 1];
+                    if (col + 1 != width - 1)
+                        bot += newMap[row, col + 2];
+                }
+                if (newMap[row - 1, col] == 1)
+                {
+                    left = newMap[row - 1, col] + newMap[row - 1, col - 1] + newMap[row - 1, col + 1];
+                    if (row - 1 != 0)
+                        left += newMap[row - 2, col];
+                }
+                if (newMap[row + 1, col] == 1)
+                {
+                    right = newMap[row + 1, col] + newMap[row + 1, col - 1] + newMap[row + 1, col + 1];
+                    if (row + 1 != height - 1)
+                        right += newMap[row + 2, col];
+                }
+                total = top + right + left + bot + newMap[row,col];
+                if (total <= 2)
+                    newMap[row, col] = 0;
             }
         }
 
