@@ -2,6 +2,11 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+/**
+ * There are only two levels active at any one time.  So technically the 
+ * new level only needs to not overlap with the level that remains, not both
+ * the old levels.
+ */
 public class World
 {
     int[,] topLevel;

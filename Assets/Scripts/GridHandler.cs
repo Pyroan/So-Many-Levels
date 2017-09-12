@@ -39,7 +39,7 @@ public class GridHandler : MonoBehaviour
 	Color[] levelColors;
 
 	/**
-	 * Number of grids that will be shown at one time.
+	 * Number of grids that will be shown at one time.  This is initialized to 1 in Unity.
 	 */
 	public int levelsInPlay;
 
@@ -68,7 +68,7 @@ public class GridHandler : MonoBehaviour
 	}
 
 	/**
-	 * Initialize the Queue of grids.
+	 * Initialize the Queue of grids by loading in the first 3 levels.
 	 * All grid definitions are loaded from a file called
 	 * "levels.otr"
 	 */
@@ -131,7 +131,12 @@ public class GridHandler : MonoBehaviour
                     
                     world.setTopLevel(map);
                     world.setTopOffset(new Vector2(0, 0));
-                    newGrid.CreateGrid(y, x, tmpMap);
+                    // newGrid.CreateGrid(y, x, tmpMap);
+                    newGrid.CreateGrid(y, x, map);
+                }
+                if ( i > 2)
+                {
+                    newGrid.CreateGrid(y, x, map);
                 }
 				// set the title of the level
 				newGrid.setTitle(title);
