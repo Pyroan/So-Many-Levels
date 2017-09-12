@@ -85,6 +85,8 @@ public class GameManager : MonoBehaviour {
 
 	/**
 	 * Adds levels as the game progresses.
+     * Seems like we start off with one level, then at stage 2 add
+     * a second level and then at stage 5 it goes to 3 visible levels.
 	 */
 	void UpdateLevelsInPlay() {
 		switch (currentStage) {
