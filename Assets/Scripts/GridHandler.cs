@@ -36,7 +36,12 @@ public class GridHandler : MonoBehaviour
 	 */
 	public int goalIndex = 0;
 
-	Color[] levelColors;
+    // Sets the game mode: 0 => Original, 1 => Computer Generated Maps.
+    // This is presently defined in both GameManager and GridHandler until
+    // I can figure out a global place to put it.
+    public int gameMode = 1;
+
+    Color[] levelColors;
 
 	/**
 	 * Number of grids that will be shown at one time.  This is initialized to 1 in Unity.
@@ -44,7 +49,8 @@ public class GridHandler : MonoBehaviour
 	public int levelsInPlay;
 
     /**
-     * Manages all the levels presently in play.
+     * Only used in gameMode 1.
+     * Manages the int array versions of the grids.
      */
     public World world;
 
@@ -57,12 +63,15 @@ public class GridHandler : MonoBehaviour
 	void Start ()
 	{
         // Initialize grids queue.
-        world = new World();
+
 		grids = new Queue<Grid> ();
 		// Initialize Level colors.
 		InitLevelColors ();
 		// Create every grid and add to queue.
-		InitGrids ();
+        if (gameMode == 0)
+		    InitGrids ();
+        if (gameMode == 1)
+            InitCGGrids();
 		UpdateLevels ();
 		UpdateMoveable ();
 	}
@@ -103,41 +112,8 @@ public class GridHandler : MonoBehaviour
 				GameObject newGuy = Instantiate (grid);
 				Grid newGrid = newGuy.GetComponent<Grid> ();
 				
-                if (i == 0)
-                {
-                    world.setBotLevel(map);
-                    world.setBotOffset(new Vector2(0, 0));
-                    newGrid.CreateGrid(y, x, map);
-                }
-                if (i == 1)
-                {
-                    world.setMidLevel(map);
-                    world.setMidOffset(new Vector2(0, 0));
-                    newGrid.CreateGrid(y, x, map);
-                }
-                if (i == 2)
-                {
-                    int[,] tmpMap = newGrid.buildNextMap(world.getBotLevel(), world.getBotOffset(), world.getMidLevel(), world.getMidOffset());
-                    // Need to print the map that was built here.
-                    for (int j = 0; j < tmpMap.GetLength(0); j++)
-                    {
-                        string str = "";
-                        for (int k = 0; k < tmpMap.GetLength(1); k++)
-                        {
-                            str = str + tmpMap[j, k] + " ";
-                        }
-                        Debug.Log(str+"\n");
-                    }
-                    
-                    world.setTopLevel(map);
-                    world.setTopOffset(new Vector2(0, 0));
-                    // newGrid.CreateGrid(y, x, tmpMap);
-                    newGrid.CreateGrid(y, x, map);
-                }
-                if ( i > 2)
-                {
-                    newGrid.CreateGrid(y, x, map);
-                }
+                newGrid.CreateGrid(y, x, map);
+                
 				// set the title of the level
 				newGrid.setTitle(title);
 				// All levels start out inactive.
@@ -148,12 +124,45 @@ public class GridHandler : MonoBehaviour
 		}
 	}
 
-	/**
+    /**
+ * Initialize the Queue of grids by loading in the first 3 levels.
+ * All grid definitions are loaded from a file called
+ * "levels.otr"
+ */
+    void InitCGGrids()
+    {
+        int[,] initialMap = { { 0, 0, 0, 0, 0, 0, 0 },
+                              { 0, 0, 0, 0, 0, 0, 0 },
+                              { 0, 1, 1, 1, 1, 1, 1 },
+                              { 0, 1, 0, 0, 0, 2, 1 },
+                              { 0, 1, 1, 1, 1, 1, 1 },
+                              { 0, 0, 0, 0, 0, 0, 0 },
+                              { 0, 0, 0, 0, 0, 0, 0 } };
+
+        world = new World();
+        
+        world.addLevel(initialMap);
+        // Create a new grid using this info.
+        GameObject newGuy = Instantiate(grid);
+        Grid newGrid = newGuy.GetComponent<Grid>();
+        // Matrices are square, so not sure if the get lengths are accessing the right values.
+        newGrid.CreateGrid(initialMap.GetLength(0), initialMap.GetLength(1), initialMap);
+
+        // set the title of the level
+        newGrid.setTitle("Introduction");
+        // All levels start out inactive.
+        newGrid.gameObject.SetActive(false);
+        // add the new grid to the level queue.
+        grids.Enqueue(newGrid);
+
+    }
+
+    /**
 	 * Define all possible colors levels can be.
 	 * I maybe shouldn't use a dictionary.
 	 * I'm not sure yet.
 	 */
-	void InitLevelColors ()
+    void InitLevelColors ()
 	{
 		Color blue = new Color (96 / 255f, 169 / 255f, 218 / 255f, 1);
 		Color red = new Color (246 / 255f, 79 / 255f, 79 / 255f, 1);
@@ -197,11 +206,41 @@ public class GridHandler : MonoBehaviour
 		UpdateMoveable ();
 	}
 
-	/**
+    /**
+     * Will build a new level based on what level(s) were active
+     * before.  Assumes the level at the bottom will be the first to go.
+     */
+    public void UpdateCGLevels()
+    {
+        // Make sure there are enough levels in the world.
+        while (world.getActiveCount() < levelsInPlay + 1)
+        {
+            int[,] tmpMap = world.BuildNextMap();
+            world.debugPrintMap(tmpMap);
+            world.addLevel(tmpMap);
+            // Create a new grid using this info.
+            GameObject newGuy = Instantiate(grid);
+            Grid newGrid = newGuy.GetComponent<Grid>();
+
+            newGrid.CreateGrid(tmpMap.GetLength(0), tmpMap.GetLength(1), tmpMap);
+
+            // set the title of the level
+            newGrid.setTitle("Defalut");
+            // All CG levels start out as active.
+            newGrid.gameObject.SetActive(true);
+            // add the new grid to the level queue.
+            grids.Enqueue(newGrid);
+        }
+        
+        // Remove the old level.
+        world.CycleLevels();
+    }
+
+    /**
 	 * Sets the current moveable level.
 	 * Does this really need to be it's own method? Maybe.
 	 */
-	void UpdateMoveable ()
+    void UpdateMoveable ()
 	{
 		for (int i = 0; i < currentGrids.Length; i++) {
 			currentGrids [i].setMoveable (i == currentMoveableLevel);

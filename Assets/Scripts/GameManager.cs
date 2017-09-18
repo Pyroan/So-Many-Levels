@@ -20,6 +20,9 @@ public class GameManager : MonoBehaviour {
 
 	public Text titleText;
 
+    // Sets the game mode: 0 => Original, 1 => Computer Generated Maps.
+    public int gameMode = 1;
+
 	/**
 	 * The logger for playtesting
 	 */
@@ -44,7 +47,7 @@ public class GameManager : MonoBehaviour {
 		currentStage = 1;
 		timeSinceLastCompletedLevel = Time.time;
 		UpdateHelpText();
-		UpdateTitleText ();
+		UpdateTitleText();
 	}
 
 	/**
@@ -74,13 +77,16 @@ public class GameManager : MonoBehaviour {
 			//+ (Time.time - timeSinceLastCompletedLevel).ToString("N2") + "s");
 		timeSinceLastCompletedLevel = Time.time;
 		// update levels.
-		gh.NextLevel ();
+		gh.NextLevel();
 //		gh.goalIndex = ++gh.goalIndex % gh.levelsInPlay;
 		currentStage++;
-		UpdateLevelsInPlay ();
-		UpdateHelpText ();
-		gh.UpdateLevels ();
-		UpdateTitleText ();
+		UpdateLevelsInPlay();
+		UpdateHelpText();
+        if (gameMode == 0)
+		    gh.UpdateLevels();
+        if (gameMode == 1)
+            gh.UpdateCGLevels();
+		UpdateTitleText();
 	}
 
 	/**
