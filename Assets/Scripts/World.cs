@@ -19,39 +19,40 @@ public class World
 
         foreach (MazeLevel level in levels)
         {
-            tmp.addLevel((MazeLevel)level.Clone());
+            tmp.AddLevel((MazeLevel)level.Clone());
         }
 
         return tmp;
     }
 
-    public void addLevel(MazeLevel lvl)
+    public void AddLevel(MazeLevel lvl)
     {
         levels.Add(lvl);
     }
 
-    public void addLevel(int[,] lvl)
+    public void AddLevel(int[,] lvl)
     {
-        debugPrintMap(lvl);
+        DebugPrintMap(lvl);
         MazeLevel level = new MazeLevel(lvl, new Vector2(0, 0));
         levels.Add(level);
     }
 
-    public int getActiveCount()
+    public int GetActiveCount()
     {
         return levels.Count;
     }
 
-    public MazeLevel getLevel(int loc)
+    public MazeLevel GetLevel(int loc)
     {
         return levels[loc];
     }
 
-    public void setGoal(Vector2 loc)
+    public void SetGoal(Vector2 loc)
     {
-        int row = (int)loc.y;
-        int col = (int)loc.x;
-        levels[0].map[row,col] = 2;
+        if (levels[0].Contains(loc))
+        {
+            levels[0].SetGoal(loc);
+        }
     }
 
     /**
@@ -66,7 +67,7 @@ public class World
      * Tries to move the selected maze in the selected direction.
      * Returns true if successful, false otherwise.
      */
-    public bool moveMap(int map, int direction)
+    public bool MoveMap(int map, int direction)
     {
         int changeX = 0;
         int changeY = 0;
@@ -140,7 +141,7 @@ public class World
         return false;
     }
 
-    public void debugPrintMap(int[,] map)
+    public void DebugPrintMap(int[,] map)
     {
         for (int j = 0; j < map.GetLength(0); j++)
         {
@@ -188,7 +189,7 @@ public class World
             newMap[height / 2 - 1, width / 2] = 0;
         }
 
-        for (int loc = 0; loc < getActiveCount(); loc++)
+        for (int loc = 0; loc < GetActiveCount(); loc++)
         {
             MazeLevel level = levels[loc];
 
@@ -369,7 +370,7 @@ public class World
      * Attempts to find a good spot to place the goal by randomly moving the levels
      * around.
      */
-    void FindGoal()
+    public void FindGoal()
     {
         int x, y;
 
@@ -378,11 +379,11 @@ public class World
         int moves = 0;
         for (int count = 0; count < 10; count++)
         {
-            int moveType = Random.Range(1, 3);
+            int moveLevel = Random.Range(0, GetActiveCount()-1);
             int moveDir = Random.Range(1, 4);
-            if (cloneWorld.moveMap(moveType, moveDir))
+            if (cloneWorld.MoveMap(moveLevel, moveDir))
             {
-                if (moveType == 1)
+                if (moveLevel == 0)
                 {
                     switch (moveDir)
                     {  // Goal should move in reverse direction of the maze
@@ -399,11 +400,20 @@ public class World
                             goalStart.x += 1;
                             break;
                     }
+                    
                 }
+                Debug.Log(goalStart.x + " : " + goalStart.y + "\n");
                 moves++;
             }
-            setGoal(goalStart);
+            if (levels[0].Contains(goalStart)  && count > 5)
+            {
+                // Goal inside the goal level.
+                Debug.Log("Goal inside the right map");
+                break;
+            }
+            
         }
+        SetGoal(goalStart);
     }
 
     /**
