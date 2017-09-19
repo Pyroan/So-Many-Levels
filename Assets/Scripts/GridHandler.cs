@@ -67,13 +67,16 @@ public class GridHandler : MonoBehaviour
 		grids = new Queue<Grid> ();
 		// Initialize Level colors.
 		InitLevelColors ();
-		// Create every grid and add to queue.
+        // Create every grid and add to queue.
         if (gameMode == 0)
-		    InitGrids ();
+        {
+            InitGrids();
+            UpdateLevels();
+        }
         if (gameMode == 1)
+        {
             InitCGGrids();
-		UpdateLevels ();
-		UpdateMoveable ();
+        }
 	}
 
 	/**
@@ -141,7 +144,7 @@ public class GridHandler : MonoBehaviour
 
         world = new World();
         
-        world.addLevel(initialMap);
+        world.AddLevel(initialMap);
         // Create a new grid using this info.
         GameObject newGuy = Instantiate(grid);
         Grid newGrid = newGuy.GetComponent<Grid>();
@@ -151,10 +154,14 @@ public class GridHandler : MonoBehaviour
         // set the title of the level
         newGrid.setTitle("Introduction");
         // All levels start out inactive.
-        newGrid.gameObject.SetActive(false);
-        // add the new grid to the level queue.
-        grids.Enqueue(newGrid);
+        newGrid.gameObject.SetActive(true);
 
+        // Resize the currentGrids array
+        Array.Resize(ref currentGrids, levelsInPlay);
+        currentGrids[0] = newGrid;
+        currentGrids[0].UpdateColor(levelColors[0]);
+        currentGrids[0].setGoalLevel(0 == goalIndex);
+        UpdateMoveable();
     }
 
     /**
@@ -212,12 +219,18 @@ public class GridHandler : MonoBehaviour
      */
     public void UpdateCGLevels()
     {
+        // Resize the currentGrids array
+        Array.Resize(ref currentGrids, levelsInPlay);
+
+        // We need to load in the Grids in the currentGrids in the correct order, likely one that matches World's ordering or
+        // things are likely going to fall apart. We need to preserve this logic so our CG code will work with the rest of the code.
+
         // Make sure there are enough levels in the world.
-        while (world.getActiveCount() < levelsInPlay + 1)
+        while (world.GetActiveCount() < levelsInPlay + 1)
         {
             int[,] tmpMap = world.BuildNextMap();
-            world.debugPrintMap(tmpMap);
-            world.addLevel(tmpMap);
+            world.DebugPrintMap(tmpMap);
+            world.AddLevel(tmpMap);
             // Create a new grid using this info.
             GameObject newGuy = Instantiate(grid);
             Grid newGrid = newGuy.GetComponent<Grid>();
@@ -234,6 +247,50 @@ public class GridHandler : MonoBehaviour
         
         // Remove the old level.
         world.CycleLevels();
+        world.FindGoal();
+
+        // Fill in the array as needed.
+        for (int i = 0; i < levelsInPlay; i++)
+        {
+            if (!currentGrids[i] || !currentGrids[i].isActiveAndEnabled)
+            {
+                try
+                {
+                    currentGrids[i] = grids.Dequeue();  // The Queue should be empty after this.
+                }
+                catch (InvalidOperationException)  // This should never happen in CG mode.
+                {
+                    // Happens if we wind up at the end of the queue.
+                    // Yeah that's pretty ducking firty, bucko.
+                    SceneManager.LoadScene(2);
+                }
+            }
+        }
+
+        // Set all grids to being active.
+        // Make all grids the appropriate color.
+        // Also set the current goalIndex
+        for (int i = 0; i < currentGrids.Length; i++)
+        {
+            // This is impressively bad SEing.
+            if (i == goalIndex)
+            {
+                currentGrids[i].SelfDestruct();
+                GameObject newGuy = Instantiate(grid);
+                Grid newGrid = newGuy.GetComponent<Grid>();
+                int[,] tmpMap = world.GetLevel(0).map;
+                newGrid.CreateGrid(tmpMap.GetLength(0), tmpMap.GetLength(1), tmpMap);
+                // set the title of the level
+                newGrid.setTitle("Defalut");
+                // All CG levels start out as active.
+                newGrid.gameObject.SetActive(true);
+                currentGrids[i] = newGrid;
+            }
+            currentGrids[i].UpdateColor(levelColors[i]);
+            // Set appropriate goal level
+            currentGrids[i].setGoalLevel(i == goalIndex);
+        }
+        UpdateMoveable();
     }
 
     /**
