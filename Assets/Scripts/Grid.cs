@@ -181,4 +181,6 @@ public class Grid : MonoBehaviour {
 	{
 		goalPosition = prevPosition;
 	}
+
+
 }
