@@ -102,7 +102,7 @@ public class Grid : MonoBehaviour {
 	 * FIXME movement is kinda broken still.
 	 */
 	void FixedUpdate () {
-		float moveHorizontal = Input.GetAxisRaw ("Horizontal Top");
+			float moveHorizontal = Input.GetAxisRaw ("Horizontal Top");
 			float moveVertical = Input.GetAxisRaw ("Vertical Top");
 			Vector3 movement = new Vector3 (moveHorizontal, moveVertical, 0);
 			if (Time.time >= nextMove && !(movement == Vector3.zero)) {
