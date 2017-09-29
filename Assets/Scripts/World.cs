@@ -19,7 +19,9 @@ public class World
 
         foreach (MazeLevel level in levels)
         {
-            tmp.AddLevel((MazeLevel)level.Clone());
+            MazeLevel lvl = (MazeLevel)level.Clone();
+            tmp.AddLevel(lvl);
+            DebugPrintMap(lvl.map);
         }
 
         return tmp;
@@ -111,6 +113,9 @@ public class World
         return true;
     }
 
+    /**
+     * TODO: This is not working correctly :(
+     */
     bool CheckForOverlap(MazeLevel level1, MazeLevel level2)
     {
         int[,] map1 = level1.map;
@@ -130,7 +135,7 @@ public class World
                     if (locX < map2.GetLength(0) && locY < map2.GetLength(1))
                     {
                         if ((map2[locX, locY] == 1) && (map1[row, col] == 1))
-                            return false;
+                            return true;
                     }
                 }
                 locY++;
