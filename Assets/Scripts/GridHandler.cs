@@ -219,6 +219,14 @@ public class GridHandler : MonoBehaviour
      */
     public void UpdateCGLevels()
     {
+        // Need to update the offsets of all the maps stored in world.
+        for (int i = 0; i < currentGrids.GetLength(0); i++)
+        {
+            float xLoc = currentGrids[i].transform.position.x;
+            float yLoc = currentGrids[i].transform.position.y;
+            Debug.Log(i + " :" + xLoc + "," + yLoc);
+        }
+
         // Resize the currentGrids array
         Array.Resize(ref currentGrids, levelsInPlay);
 
@@ -229,7 +237,7 @@ public class GridHandler : MonoBehaviour
         while (world.GetActiveCount() < levelsInPlay + 1)
         {
             int[,] tmpMap = world.BuildNextMap();
-            world.DebugPrintMap(tmpMap);
+            //world.DebugPrintMap(tmpMap);
             world.AddLevel(tmpMap);
             // Create a new grid using this info.
             GameObject newGuy = Instantiate(grid);
@@ -252,6 +260,7 @@ public class GridHandler : MonoBehaviour
         // Fill in the array as needed.
         for (int i = 0; i < levelsInPlay; i++)
         {
+            
             if (!currentGrids[i] || !currentGrids[i].isActiveAndEnabled)
             {
                 try
@@ -265,6 +274,7 @@ public class GridHandler : MonoBehaviour
                     SceneManager.LoadScene(2);
                 }
             }
+            
         }
 
         // Set all grids to being active.
