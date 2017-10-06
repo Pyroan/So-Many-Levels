@@ -222,14 +222,19 @@ public class GridHandler : MonoBehaviour
         // Need to update the offsets of all the maps stored in world.
         for (int i = 0; i < currentGrids.GetLength(0); i++)
         {
-            float xLoc = currentGrids[i].transform.position.x;
-            float yLoc = currentGrids[i].transform.position.y;
-            int worldIndex = (i - goalIndex);
-            if (worldIndex < 0)
-                worldIndex = worldIndex + currentGrids.GetLength(0);
-            world.GetLevel(worldIndex).offset.x = (int)xLoc;
-            world.GetLevel(worldIndex).offset.y = (int)yLoc;
-            Debug.Log(i + " (Offset):" + (int)xLoc + "," + (int)yLoc);
+            if (currentGrids[i] && currentGrids[i].isActiveAndEnabled)
+            {
+                float xLoc = currentGrids[i].transform.position.x;
+                float yLoc = currentGrids[i].transform.position.y;
+                int worldIndex = (i - goalIndex);
+                if (worldIndex < 0)
+                    worldIndex = worldIndex + currentGrids.GetLength(0);
+                world.GetLevel(worldIndex).offset.x = (int)xLoc;
+                world.GetLevel(worldIndex).offset.y = (int)yLoc;
+                world.DebugPrintMap(world.GetLevel(worldIndex).map, 0, 0);
+                Debug.Log(i + " (OffsetF):" + xLoc + "," + yLoc);
+                Debug.Log(i + " (OffsetI):" + (int)xLoc + "," + (int)yLoc);
+            }
         }
 
         // Resize the currentGrids array
