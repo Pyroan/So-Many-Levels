@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -21,7 +21,7 @@ public class World
         {
             MazeLevel lvl = (MazeLevel)level.Clone();
             tmp.AddLevel(lvl);
-            DebugPrintMap(lvl.map);
+           // DebugPrintMap(lvl.map);
         }
 
         return tmp;
@@ -34,7 +34,7 @@ public class World
 
     public void AddLevel(int[,] lvl)
     {
-        DebugPrintMap(lvl);
+        DebugPrintMap(lvl,0,0);
         MazeLevel level = new MazeLevel(lvl, new Vector2(0, 0));
         levels.Add(level);
     }
@@ -114,7 +114,7 @@ public class World
     }
 
     /**
-     * TODO: This is not working correctly :(
+     * Checks to see if two levels are overlapping.
      */
     bool CheckForOverlap(MazeLevel level1, MazeLevel level2)
     {
@@ -130,7 +130,7 @@ public class World
             int locY = 0;
             for (int col = startCol; col < map1.GetLength(0); col++)
             {
-                if (row > 0 && col > 0)
+                if (row >= 0 && col >= 0)
                 {
                     if (locX < map2.GetLength(0) && locY < map2.GetLength(1))
                     {
@@ -146,22 +146,25 @@ public class World
         return false;
     }
 
-    public void DebugPrintMap(int[,] map)
+    public void DebugPrintMap(int[,] map, int x, int y)
     {
+        string str = "";
         for (int j = 0; j < map.GetLength(0); j++)
         {
-            string str = "";
+            
             for (int k = 0; k < map.GetLength(1); k++)
             {
                 str = str + map[j, k] + " ";
             }
-            Debug.Log(str + "\n");
+            str = str + "\n";
         }
-        Debug.Log("---");
+        Debug.Log(str + "\n");
+        Debug.Log(x+" ### "+y);
     }
 
     /**
      * Attempts to create a new random level to replace the just completed level.
+     * TODO: It is still creating maps with overlap...not sure if map placement is wrong or some other issue.
      */
     public int[,] BuildNextMap()
     {
@@ -193,20 +196,21 @@ public class World
             newMap[height / 2 + 1, width / 2] = 0;
             newMap[height / 2 - 1, width / 2] = 0;
         }
-
         for (int loc = 0; loc < GetActiveCount(); loc++)
         {
+            
             MazeLevel level = levels[loc];
 
             int startRow = (int)(height / 2 + level.offset.y - level.map.GetLength(1) / 2);
             int startCol = (int)(width / 2 + level.offset.x - level.map.GetLength(0) / 2);
+            Debug.Log("Level: " + loc+": sr:"+startRow+" sc: "+startCol);
             int locX = 0;
             for (int row = startRow; row < height; row++)
             {
                 int locY = 0;
                 for (int col = startCol; col < width; col++)
                 {
-                    if (row > 0 && col > 0)
+                    if (row >= 0 && col >= 0)
                     {
                         if (locX < level.map.GetLength(0) && locY < level.map.GetLength(1))
                         {
@@ -393,16 +397,16 @@ public class World
                     switch (moveDir)
                     {  // Goal should move in reverse direction of the maze
                         case 1:   // north
-                            goalStart.y += 1;
-                            break;
-                        case 2:    // south
                             goalStart.y += -1;
                             break;
+                        case 2:    // south
+                            goalStart.y += 1;
+                            break;
                         case 3:    // east
-                            goalStart.x += -1;
+                            goalStart.x += 1;
                             break;
                         case 4:    // west
-                            goalStart.x += 1;
+                            goalStart.x += -1;
                             break;
                     }
                     
