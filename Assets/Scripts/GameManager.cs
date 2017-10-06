@@ -57,8 +57,8 @@ public class GameManager : MonoBehaviour {
 	{
 		if (Input.GetKeyDown(KeyCode.RightBracket))
 			AdvanceStage();
-		if (Input.GetKeyDown (KeyCode.Backslash))
-			SceneManager.LoadScene (0);
+		if (Input.GetKeyDown (KeyCode.Escape))
+			SceneManager.LoadScene ("TitleScreen");
 		
 	}
 
