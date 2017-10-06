@@ -224,7 +224,12 @@ public class GridHandler : MonoBehaviour
         {
             float xLoc = currentGrids[i].transform.position.x;
             float yLoc = currentGrids[i].transform.position.y;
-            Debug.Log(i + " :" + xLoc + "," + yLoc);
+            int worldIndex = (i - goalIndex);
+            if (worldIndex < 0)
+                worldIndex = worldIndex + currentGrids.GetLength(0);
+            world.GetLevel(worldIndex).offset.x = (int)xLoc;
+            world.GetLevel(worldIndex).offset.y = (int)yLoc;
+            Debug.Log(i + " (Offset):" + (int)xLoc + "," + (int)yLoc);
         }
 
         // Resize the currentGrids array
@@ -285,16 +290,25 @@ public class GridHandler : MonoBehaviour
             // This is impressively bad SEing.
             if (i == goalIndex)
             {
-                currentGrids[i].SelfDestruct();
+                Debug.Log("Loc Before: "+currentGrids[i].transform.position.x+" : "+currentGrids[i].transform.position.y);
                 GameObject newGuy = Instantiate(grid);
                 Grid newGrid = newGuy.GetComponent<Grid>();
                 int[,] tmpMap = world.GetLevel(0).map;
+                
                 newGrid.CreateGrid(tmpMap.GetLength(0), tmpMap.GetLength(1), tmpMap);
+                newGrid.transform.position = currentGrids[i].transform.position;
+                newGrid.prevPosition = currentGrids[i].prevPosition;
+                newGrid.goalPosition = currentGrids[i].goalPosition;
+                newGrid.defaultPosition = currentGrids[i].defaultPosition;
+
+                
                 // set the title of the level
                 newGrid.setTitle("Defalut");
                 // All CG levels start out as active.
                 newGrid.gameObject.SetActive(true);
+                currentGrids[i].SelfDestruct();
                 currentGrids[i] = newGrid;
+                Debug.Log("Loc aFter: " + currentGrids[i].transform.position.x + " : " + currentGrids[i].transform.position.y);
             }
             currentGrids[i].UpdateColor(levelColors[i]);
             // Set appropriate goal level
