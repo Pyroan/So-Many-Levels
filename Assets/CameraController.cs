@@ -8,6 +8,8 @@ using UnityEngine;
  */
 public class CameraController : MonoBehaviour {
 
+	public bool colorChange;
+
 	Camera cam;
 	// Background color info
 	Color defaultColor;
@@ -21,7 +23,8 @@ public class CameraController : MonoBehaviour {
 	}
 
 	void Update() {
-		cam.backgroundColor = Color.Lerp (cam.backgroundColor,currentColor, .2f);
+		if (colorChange)
+			cam.backgroundColor = Color.Lerp (cam.backgroundColor,currentColor, .2f);
 	}
 
 	public void ChangeColor(Color c) {
