@@ -54,6 +54,8 @@ public class GridHandler : MonoBehaviour
      */
     public World world;
 
+	CameraController cam;
+
 	/**
 	 * Initialization:
 	 * Fill in grids queue,
@@ -65,6 +67,7 @@ public class GridHandler : MonoBehaviour
         // Initialize grids queue.
 
 		grids = new Queue<Grid> ();
+		cam = FindObjectOfType<CameraController> ();
 		// Initialize Level colors.
 		InitLevelColors ();
         // Create every grid and add to queue.
@@ -303,6 +306,7 @@ public class GridHandler : MonoBehaviour
 			currentGrids [i].setMoveable (i == currentMoveableLevel);
 			currentGrids [i].UpdateColor ();
 		}
+		cam.ChangeColor(currentGrids [currentMoveableLevel].color);
 	}
 
 	/**
