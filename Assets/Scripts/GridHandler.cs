@@ -334,8 +334,10 @@ public class GridHandler : MonoBehaviour
 		for (int i = 0; i < currentGrids.Length; i++) {
 			currentGrids [i].setMoveable (i == currentMoveableLevel);
 			currentGrids [i].UpdateColor ();
+			currentGrids [i].setMass(100);
 		}
 		cam.ChangeColor(currentGrids [currentMoveableLevel].color);
+		currentGrids [currentMoveableLevel].setMass(1);
 	}
 
 	/**

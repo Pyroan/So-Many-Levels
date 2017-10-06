@@ -18,6 +18,8 @@ public class Grid : MonoBehaviour {
 	public GameObject goalType;
 	public Color color = Color.white;
 
+	Rigidbody2D rb2d;
+
 	// How many cells we'll have
 	public int width;
 	public int height;
@@ -91,6 +93,7 @@ public class Grid : MonoBehaviour {
 			}
 		}
 		setGoalLevel (false);
+		rb2d = GetComponent<Rigidbody2D> ();
 	}
 
 	// Time taken between moves
@@ -182,5 +185,8 @@ public class Grid : MonoBehaviour {
 		goalPosition = prevPosition;
 	}
 
-
+	public void setMass(float mass)
+	{
+		rb2d.mass = mass;	
+	}
 }
