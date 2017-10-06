@@ -180,7 +180,8 @@ public class Grid : MonoBehaviour {
 	void OnCollisionEnter2D(Collision2D other)
 	{
 		goalPosition = prevPosition;
-	}
+        transform.position = Vector3.Lerp(transform.position, goalPosition, .2f);
+    }
 
 
 }
