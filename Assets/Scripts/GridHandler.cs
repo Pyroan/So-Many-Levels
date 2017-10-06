@@ -156,6 +156,7 @@ public class GridHandler : MonoBehaviour
 
         // set the title of the level
         newGrid.setTitle("Introduction");
+        Debug.Log("Set the Title");
         // All levels start out inactive.
         newGrid.gameObject.SetActive(true);
 
@@ -227,9 +228,9 @@ public class GridHandler : MonoBehaviour
         {
             if (currentGrids[i] && currentGrids[i].isActiveAndEnabled)
             {
-                float xLoc = currentGrids[i].transform.position.x;
-                float yLoc = currentGrids[i].transform.position.y;
-                int worldIndex = (i - goalIndex);
+                float xLoc = Mathf.Round(currentGrids[i].transform.position.x + 0.59f);
+                float yLoc = Mathf.Round(currentGrids[i].transform.position.y - 0.61f);
+                int worldIndex = (i - goalIndex + 1);
                 if (worldIndex < 0)
                     worldIndex = worldIndex + currentGrids.GetLength(0);
                 world.GetLevel(worldIndex).offset.x = (int)xLoc;
