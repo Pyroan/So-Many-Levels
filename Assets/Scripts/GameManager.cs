@@ -40,14 +40,18 @@ public class GameManager : MonoBehaviour {
      */
 	int currentStage;
 
+	CameraController cam;
+
 	// Use this for initialization
 	void Start () {
 		gh = FindObjectOfType<GridHandler> ();
+		cam = FindObjectOfType<CameraController> ();
 		logger = FindObjectOfType<Logger> ();
 		currentStage = 1;
 		timeSinceLastCompletedLevel = Time.time;
 		UpdateHelpText();
 		UpdateTitleText();
+		UpdateCameraSize ();
 	}
 
 	/**
@@ -87,6 +91,7 @@ public class GameManager : MonoBehaviour {
         if (gameMode == 1)
             gh.UpdateCGLevels();
 		UpdateTitleText();
+		UpdateCameraSize ();
 	}
 
 	/**
@@ -102,9 +107,14 @@ public class GameManager : MonoBehaviour {
 		case 5:
 			gh.levelsInPlay++;
 			break;
-		case 9:
+		case 8:
 			gh.NextLevel ();
-			gh.NextLevelCheat ();
+			gh.NextLevel ();
+			break;
+		case 10:
+			gh.NextLevel ();
+			gh.NextLevel ();
+			gh.levelsInPlay += 2;
 			break;
 		default:
 			break;
@@ -128,6 +138,24 @@ public class GameManager : MonoBehaviour {
 			break;
 		default:
 			tutText.text = "";
+			break;
+		}
+	}
+
+	/**
+	 * Updates the size of the camera. This is ugly, bad hardcoding,
+	 * But it's just another stick of dynamite.
+	 */
+	void UpdateCameraSize() {
+		switch (currentStage) {
+		case 4:
+			cam.Resize (9);
+			break;
+		case 5:
+			cam.Resize (9);
+			break;
+		default:
+			//cam.Resize (5);
 			break;
 		}
 	}
