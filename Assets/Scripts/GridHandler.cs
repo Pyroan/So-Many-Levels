@@ -381,7 +381,12 @@ public class GridHandler : MonoBehaviour
 
 	public string GetCurrentTitle()
 	{
-		return currentGrids [goalIndex].getTitle ();
+        String title = "Introduction";
+        if (currentGrids != null && currentGrids.GetLength(0) > 0)
+        {
+            title = currentGrids[goalIndex].getTitle();
+        }
+        return title;
 	}
 
 	/**
