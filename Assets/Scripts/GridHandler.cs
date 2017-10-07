@@ -235,9 +235,9 @@ public class GridHandler : MonoBehaviour
                     worldIndex = worldIndex + currentGrids.GetLength(0);
                 world.GetLevel(worldIndex).offset.x = (int)xLoc;
                 world.GetLevel(worldIndex).offset.y = (int)yLoc;
-                world.DebugPrintMap(world.GetLevel(worldIndex).map, 0, 0);
-                Debug.Log(i + " (OffsetF):" + xLoc + "," + yLoc);
-                Debug.Log(i + " (OffsetI):" + (int)xLoc + "," + (int)yLoc);
+               // world.DebugPrintMap(world.GetLevel(worldIndex).map, 0, 0);
+               // Debug.Log(i + " (OffsetF):" + xLoc + "," + yLoc);
+               // Debug.Log(i + " (OffsetI):" + (int)xLoc + "," + (int)yLoc);
             }
         }
 
@@ -250,7 +250,7 @@ public class GridHandler : MonoBehaviour
         // Make sure there are enough levels in the world.
         while (world.GetActiveCount() < levelsInPlay + 1)
         {
-            int[,] tmpMap = world.BuildNextMap();
+            int[,] tmpMap = world.BuildNextMap(levelsInPlay);
             //world.DebugPrintMap(tmpMap);
             world.AddLevel(tmpMap);
             // Create a new grid using this info.
@@ -299,7 +299,7 @@ public class GridHandler : MonoBehaviour
             // This is impressively bad SEing.
             if (i == goalIndex)
             {
-                Debug.Log("Loc Before: "+currentGrids[i].transform.position.x+" : "+currentGrids[i].transform.position.y);
+             //   Debug.Log("Loc Before: "+currentGrids[i].transform.position.x+" : "+currentGrids[i].transform.position.y);
                 GameObject newGuy = Instantiate(grid);
                 Grid newGrid = newGuy.GetComponent<Grid>();
                 int[,] tmpMap = world.GetLevel(0).map;
@@ -312,12 +312,12 @@ public class GridHandler : MonoBehaviour
 
                 
                 // set the title of the level
-                newGrid.setTitle("Defalut");
+                newGrid.setTitle("Infinity");
                 // All CG levels start out as active.
                 newGrid.gameObject.SetActive(true);
                 currentGrids[i].SelfDestruct();
                 currentGrids[i] = newGrid;
-                Debug.Log("Loc aFter: " + currentGrids[i].transform.position.x + " : " + currentGrids[i].transform.position.y);
+             //   Debug.Log("Loc aFter: " + currentGrids[i].transform.position.x + " : " + currentGrids[i].transform.position.y);
             }
             currentGrids[i].UpdateColor(levelColors[i]);
             // Set appropriate goal level
