@@ -84,12 +84,20 @@ public class GameManager : MonoBehaviour {
 		gh.NextLevel();
 //		gh.goalIndex = ++gh.goalIndex % gh.levelsInPlay;
 		currentStage++;
-		UpdateLevelsInPlay();
-		UpdateHelpText();
+        
+		
         if (gameMode == 0)
-		    gh.UpdateLevels();
+        {
+            UpdateLevelsInPlay();
+            UpdateHelpText();
+            gh.UpdateLevels();
+        }
         if (gameMode == 1)
+        {
+            UpdateCGLevelsInPlay();
+            UpdateHelpText();
             gh.UpdateCGLevels();
+        }
 		UpdateTitleText();
 		UpdateCameraSize ();
 	}
@@ -121,11 +129,31 @@ public class GameManager : MonoBehaviour {
 		}
 	}
 
-	/**
+    /**
+     * Adds levels as the game progresses.
+     * Seems like we start off with one level, then at stage 2 add
+     * a second level and then at stage 5 it goes to 3 visible levels.
+     */
+    void UpdateCGLevelsInPlay()
+    {
+        switch (currentStage)
+        {
+            case 2:
+                gh.levelsInPlay++;
+                break;
+            case 5:
+                gh.levelsInPlay++;
+                break;
+            default:
+                break;
+        }
+    }
+
+    /**
 	 * Updates Tutorial GUI to display text
 	 * based on current level.
 	 */
-	void UpdateHelpText() {
+    void UpdateHelpText() {
 		switch (currentStage) {
 		case 1:
 			tutText.text = "WASD to move";
