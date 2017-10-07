@@ -11,6 +11,10 @@ using UnityEngine;
  */
 public class World
 {
+    const int SMALL = 0;
+    const int MEDIUM = 1;
+    const int LARGE = 2;
+    int mapSize = SMALL; // 0-> small, 1-> medium, 2->large
     List<MazeLevel> levels = new List<MazeLevel>();
 
     public World Clone()
@@ -163,14 +167,49 @@ public class World
     }
 
     /**
+     * Figure out how big to make the next map.
+     */
+    private int determineMapSize(int totalLevels)
+    {
+        Debug.Log("MapSize: " + mapSize+" Total Levels: "+totalLevels);
+        if (totalLevels == 1)
+        {
+            mapSize = MEDIUM;
+        }
+        else if (mapSize == SMALL || mapSize == MEDIUM)  // Next Map needs to be large.
+        {
+            mapSize = LARGE;
+        }
+        else if (mapSize == 2)
+        {
+            if (totalLevels == 2)
+                mapSize = SMALL;
+            else
+            {
+                if (levels[levels.Count - 2].map.GetLength(0) <= 7)
+                    mapSize = MEDIUM;
+                else
+                    mapSize = SMALL;
+            }
+        }
+        Debug.Log("Map Size: " + mapSize);
+        int height = 5;
+        if (mapSize == MEDIUM)
+            height = 7;
+        if (mapSize == LARGE)
+            height = 11;
+        return height;
+    }
+
+    /**
      * Attempts to create a new random level to replace the just completed level.
      * TODO: It is still creating maps with overlap...not sure if map placement is wrong or some other issue.
      */
-    public int[,] BuildNextMap()
+    public int[,] BuildNextMap(int totalLevels)
     {
-        int height = Random.Range(1, 7) + 5;
-        if (height % 2 == 0)
-            height++;
+
+        int height = determineMapSize(totalLevels);
+        Debug.Log("Height: " + height);
         int width = height;
         int[,] newMap = new int[height, width];
 
@@ -411,7 +450,7 @@ public class World
                     }
                     
                 }
-                Debug.Log(goalStart.x + " : " + goalStart.y + "\n");
+              //  Debug.Log(goalStart.x + " : " + goalStart.y + "\n");
                 moves++;
             }
             if (levels[0].Contains(goalStart)  && count > 5)
