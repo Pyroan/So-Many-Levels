@@ -90,7 +90,7 @@ public class GridHandler : MonoBehaviour
 	void InitGrids ()
 	{
 		// Open levels.otr
-		using (StreamReader levelFile = File.OpenText ("levels.otr")) {
+		using (StreamReader levelFile = File.OpenText ("beta-levels.otr")) {
 			// Frankly, I don't know how C# string processing works.
 			int numOfLevels = Int32.Parse (levelFile.ReadLine ());
 
@@ -179,7 +179,8 @@ public class GridHandler : MonoBehaviour
 		Color red = new Color (246 / 255f, 79 / 255f, 79 / 255f, 1);
 		Color green = new Color (133 / 255f, 242 / 255f, 106 / 255f, 1);
 		Color orange = new Color (240 / 255f, 169 / 255f, 94 / 255f, 1);
-		levelColors = new Color[] { red, blue, orange, green };
+		Color purple = new Color (130 / 255f, 106 / 255f, 208 / 255f, 1);
+		levelColors = new Color[] { red, blue, orange, green, purple };
 	}
 
 	/**
@@ -199,7 +200,7 @@ public class GridHandler : MonoBehaviour
 				} catch (InvalidOperationException) {
 					// Happens if we wind up at the end of the queue.
 					// Yeah that's pretty ducking firty, bucko.
-					SceneManager.LoadScene(2);
+					SceneManager.LoadScene("Credits");
 				}
 			}
 		}
