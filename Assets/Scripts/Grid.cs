@@ -18,9 +18,9 @@ public class Grid : MonoBehaviour {
 	public GameObject goalType;
 	public Color color = Color.white;
 
-    public bool collision = false;
     public bool moving = false;
-
+    public bool collision = false;
+	Rigidbody2D rb2d;
 	// How many cells we'll have
 	public int width;
 	public int height;
@@ -94,6 +94,7 @@ public class Grid : MonoBehaviour {
 			}
 		}
 		setGoalLevel (false);
+		rb2d = GetComponent<Rigidbody2D> ();
 	}
 
 	// Time taken between moves
@@ -215,6 +216,10 @@ public class Grid : MonoBehaviour {
         //transform.position = Vector3.Lerp(transform.position, goalPosition, .5f);
     }
 
+	public void setMass(float mass)
+	{
+		rb2d.mass = mass;	
+	}
     private void OnCollisionExit2D(Collision2D other)
     {
         collision = false;
