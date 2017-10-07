@@ -156,7 +156,6 @@ public class GridHandler : MonoBehaviour
 
         // set the title of the level
         newGrid.setTitle("Introduction");
-        Debug.Log("Set the Title");
         // All levels start out inactive.
         newGrid.gameObject.SetActive(true);
 
@@ -223,21 +222,24 @@ public class GridHandler : MonoBehaviour
      */
     public void UpdateCGLevels()
     {
+        // Remove the old level since it is gone at this point.
+        world.CycleLevels();
+
         // Need to update the offsets of all the maps stored in world.
         for (int i = 0; i < currentGrids.GetLength(0); i++)
         {
             if (currentGrids[i] && currentGrids[i].isActiveAndEnabled)
             {
                 float xLoc = Mathf.Round(currentGrids[i].transform.position.x + 0.59f);
-                float yLoc = Mathf.Round(currentGrids[i].transform.position.y - 0.61f);
-                int worldIndex = (i - goalIndex + 1);
+                float yLoc = -Mathf.Round(currentGrids[i].transform.position.y - 0.61f);
+                int worldIndex = (i - goalIndex);
                 if (worldIndex < 0)
                     worldIndex = worldIndex + currentGrids.GetLength(0);
                 world.GetLevel(worldIndex).offset.x = (int)xLoc;
                 world.GetLevel(worldIndex).offset.y = (int)yLoc;
-               // world.DebugPrintMap(world.GetLevel(worldIndex).map, 0, 0);
-               // Debug.Log(i + " (OffsetF):" + xLoc + "," + yLoc);
-               // Debug.Log(i + " (OffsetI):" + (int)xLoc + "," + (int)yLoc);
+                world.DebugPrintMap(world.GetLevel(worldIndex).map, 0, 0);
+                Debug.Log(i + " (OffsetF):" + xLoc + "," + yLoc);
+                Debug.Log(i + " (OffsetI):" + (int)xLoc + "," + (int)yLoc);
             }
         }
 
@@ -248,7 +250,7 @@ public class GridHandler : MonoBehaviour
         // things are likely going to fall apart. We need to preserve this logic so our CG code will work with the rest of the code.
 
         // Make sure there are enough levels in the world.
-        while (world.GetActiveCount() < levelsInPlay + 1)
+        while (world.GetActiveCount() < levelsInPlay)
         {
             int[,] tmpMap = world.BuildNextMap(levelsInPlay);
             //world.DebugPrintMap(tmpMap);
@@ -267,8 +269,7 @@ public class GridHandler : MonoBehaviour
             grids.Enqueue(newGrid);
         }
         
-        // Remove the old level.
-        world.CycleLevels();
+        // Determine the location for the goal.
         world.FindGoal();
 
         // Fill in the array as needed.

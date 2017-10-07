@@ -18,6 +18,9 @@ public class Grid : MonoBehaviour {
 	public GameObject goalType;
 	public Color color = Color.white;
 
+    public bool collision = false;
+    public bool moving = false;
+
 	// How many cells we'll have
 	public int width;
 	public int height;
@@ -101,20 +104,39 @@ public class Grid : MonoBehaviour {
 	 * Handle Movement.
 	 * FIXME movement is kinda broken still.
 	 */
-	void FixedUpdate () {
+	void FixedUpdate ()
+    {
 		float moveHorizontal = Input.GetAxisRaw ("Horizontal Top");
-			float moveVertical = Input.GetAxisRaw ("Vertical Top");
-			Vector3 movement = new Vector3 (moveHorizontal, moveVertical, 0);
-			if (Time.time >= nextMove && !(movement == Vector3.zero)) {
-				nextMove = Time.time + moveCD;
-				prevPosition = goalPosition;
-			} else {
-				movement = Vector3.zero;
-			}
-		if (moveable) {
-			goalPosition += movement;
+		float moveVertical = Input.GetAxisRaw ("Vertical Top");
+       // if (moveHorizontal > 0 || moveVertical > 0)
+       //     Debug.Log("MH: " + moveHorizontal + " MV: " + moveVertical);
+		Vector3 movement = new Vector3 (moveHorizontal, moveVertical, 0);
+		if (!moving && moveable && !(movement == Vector3.zero))
+        {
+			nextMove = Time.time + moveCD;
+			prevPosition = goalPosition;
+            goalPosition += movement;
+            moving = true;
 		}
-		transform.position = Vector3.Lerp (transform.position, goalPosition, .2f);
+
+        if (moving)
+        {
+            if (nextMove >= Time.time)  // Only Lerp if there is a move to be processed.
+            {
+                float rate = 1.0f - (nextMove - Time.time) / moveCD;
+                Debug.Log(rate + " PP: " + prevPosition.x + "," + prevPosition.y + " GP: " + goalPosition.x + "," + goalPosition.y + " TP: " + transform.position.x + "," + transform.position.y);
+                transform.position = Vector3.Lerp(prevPosition, goalPosition, rate);
+                // Debug.Log(rate + " PP: " + prevPosition.x + "," + prevPosition.y + " GP: " + goalPosition.x + "," + goalPosition.y + " TP: " + transform.position.x + "," + transform.position.y);
+                if (goalPosition.x == transform.position.x && goalPosition.y == transform.position.y)
+                    moving = false;
+            }
+            else if (goalPosition.x != transform.position.x || goalPosition.y != transform.position.y)  // In case there is any last distanct to cover.
+            {
+                Debug.Log(" PP: " + prevPosition.x + "," + prevPosition.y + " GP: " + goalPosition.x + "," + goalPosition.y + " TP: " + transform.position.x + "," + transform.position.y);
+                transform.position = goalPosition;
+                moving = false;
+            }
+        }
 	}
 
 	/**
@@ -179,9 +201,23 @@ public class Grid : MonoBehaviour {
 
 	void OnCollisionEnter2D(Collision2D other)
 	{
-		goalPosition = prevPosition;
-        transform.position = Vector3.Lerp(transform.position, goalPosition, .2f);
+        if (!collision)
+        {
+            collision = true;
+            goalPosition = prevPosition;
+            float rate = 1.0f - (nextMove - Time.time) / moveCD;
+            transform.position = Vector3.Lerp(transform.position, goalPosition, rate);
+            // transform.position = prevPosition;
+            // moving = false;
+            //nextMove = Time.time + moveCD;
+        }
+        // Shove the piece back fast enough so it doesn't tunnel through.
+        //transform.position = Vector3.Lerp(transform.position, goalPosition, .5f);
     }
 
+    private void OnCollisionExit2D(Collision2D other)
+    {
+        collision = false;
+    }
 
 }

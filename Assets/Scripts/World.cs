@@ -38,7 +38,7 @@ public class World
 
     public void AddLevel(int[,] lvl)
     {
-        DebugPrintMap(lvl,0,0);
+      //  DebugPrintMap(lvl,0,0);
         MazeLevel level = new MazeLevel(lvl, new Vector2(0, 0));
         levels.Add(level);
     }
@@ -171,7 +171,6 @@ public class World
      */
     private int determineMapSize(int totalLevels)
     {
-        Debug.Log("MapSize: " + mapSize+" Total Levels: "+totalLevels);
         if (totalLevels == 1)
         {
             mapSize = MEDIUM;
@@ -192,7 +191,6 @@ public class World
                     mapSize = SMALL;
             }
         }
-        Debug.Log("Map Size: " + mapSize);
         int height = 5;
         if (mapSize == MEDIUM)
             height = 7;
@@ -209,7 +207,6 @@ public class World
     {
 
         int height = determineMapSize(totalLevels);
-        Debug.Log("Height: " + height);
         int width = height;
         int[,] newMap = new int[height, width];
 

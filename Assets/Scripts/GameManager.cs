@@ -106,7 +106,8 @@ public class GameManager : MonoBehaviour {
 		switch (currentStage) {
 		case 2:
 			gh.levelsInPlay++;
-			break;
+               // gh.levelsInPlay++;
+                break;
 		case 5:
 			gh.levelsInPlay++;
 			break;
