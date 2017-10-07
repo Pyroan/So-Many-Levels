@@ -18,17 +18,15 @@ public class LoadSceneOnClick : MonoBehaviour {
 		if (name == "Credits") {
 			SceneManager.LoadScene ("Credits");
 		}
-		/*
-		if (gameObject.name == "Adventure Mode button") {
-			SceneManager.LoadScene ("Adventure Mode");
-		}*/
+		if (name == "Options Button") {
+			SceneManager.LoadScene ("Options Menu");
+		}
 		if (name == "Exit") {
 			Debug.Log ("Die, Die, Die!!!!");
 			Application.Quit ();
 		}
-
-		if (name == "Back Button") {
-			SceneManager.LoadScene ("TitleScreen");
-		}
+		if (name == "Back Button") { 
+			SceneManager.LoadScene ("TitleScreen"); 
+		} 
 	}
 }
