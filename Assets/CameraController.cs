@@ -9,6 +9,8 @@ using UnityEngine;
 public class CameraController : MonoBehaviour {
 
 	public bool colorChange;
+	public float changeAmount;
+	public float changeRate;
 
 	Camera cam;
 	// Background color info
@@ -24,11 +26,11 @@ public class CameraController : MonoBehaviour {
 
 	void Update() {
 		if (colorChange)
-			cam.backgroundColor = Color.Lerp (cam.backgroundColor,currentColor, .2f);
+			cam.backgroundColor = Color.Lerp (cam.backgroundColor,currentColor, changeRate);
 	}
 
 	public void ChangeColor(Color c) {
 		prevColor = currentColor;
-		currentColor = Color.Lerp(defaultColor, c,.2f);
+		currentColor = Color.Lerp(defaultColor, c, changeAmount);
 	}
 }
