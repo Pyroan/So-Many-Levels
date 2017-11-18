@@ -223,108 +223,88 @@ public class GridHandler : MonoBehaviour
      */
     public void UpdateCGLevels()
     {
+        // Need to update the offsets of all the maps stored in world - all the grids should still be there now.
+        for (int i = 0; i < currentGrids.GetLength(0); i++)
+        {
+               // Debug.Log(i + " (OffsetF) x,y:" + currentGrids[i].transform.position.x + "," + currentGrids[i].transform.position.y);
+          float xLoc = Mathf.Round(currentGrids[i].transform.position.x + 0.59f);
+          float yLoc = -Mathf.Round(currentGrids[i].transform.position.y - 0.61f);
+          int worldIndex = (i - goalIndex);  // goalIndex should always be 0 now so can probably remove.
+          if (worldIndex < 0)
+                worldIndex = worldIndex + currentGrids.GetLength(0);
+          world.GetLevel(worldIndex).offset.x = (int)xLoc;
+          world.GetLevel(worldIndex).offset.y = (int)yLoc;
+               // world.DebugPrintMap(world.GetLevel(worldIndex).map, 0, 0);
+               
+                //Debug.Log(i + " (OffsetI) x,y:" + (int)xLoc + "," + (int)yLoc);
+        }
+
+        if (levelsInPlay > currentGrids.GetLength(0))
+        {
+            // Resize the currentGrids array
+            Array.Resize(ref currentGrids, levelsInPlay);
+        }
+
+        // Make sure there are enough levels in the world.  Need to make one extra because we are holding on to a previous level.
+        while (world.GetActiveCount() < levelsInPlay+1)
+        {
+            // Need to change input param from levelsInPlay to level being build and increment that.
+            int[,] tmpMap = world.BuildNextMap(levelsInPlay);
+           // Debug.Log("GH Line 261");
+           // world.DebugPrintMap(tmpMap,0,0);
+            world.AddLevel(tmpMap);
+
+        }
+
         // Remove the old level since it is gone at this point.
         world.CycleLevels();
 
-        // Need to update the offsets of all the maps stored in world.
-        for (int i = 0; i < currentGrids.GetLength(0); i++)
+        //Grid[] aGrids = grids.ToArray();
+        for (int i = 0; i < levelsInPlay; i++)
         {
-            if (currentGrids[i] && currentGrids[i].isActiveAndEnabled)
-            {
-                float xLoc = Mathf.Round(currentGrids[i].transform.position.x + 0.59f);
-                float yLoc = -Mathf.Round(currentGrids[i].transform.position.y - 0.61f);
-                int worldIndex = (i - goalIndex);
-                if (worldIndex < 0)
-                    worldIndex = worldIndex + currentGrids.GetLength(0);
-                world.GetLevel(worldIndex).offset.x = (int)xLoc;
-                world.GetLevel(worldIndex).offset.y = (int)yLoc;
-                world.DebugPrintMap(world.GetLevel(worldIndex).map, 0, 0);
-                Debug.Log(i + " (OffsetF):" + xLoc + "," + yLoc);
-                Debug.Log(i + " (OffsetI):" + (int)xLoc + "," + (int)yLoc);
-            }
+            Debug.Log("GH Line 299");
+            world.DebugPrintMap(world.GetLevel(i).map, 0, 0);
         }
 
-        // Resize the currentGrids array
-        Array.Resize(ref currentGrids, levelsInPlay);
+        // Determine the location for the goal.
+        world.FindGoal();
 
-        // We need to load in the Grids in the currentGrids in the correct order, likely one that matches World's ordering or
-        // things are likely going to fall apart. We need to preserve this logic so our CG code will work with the rest of the code.
+        // Destroy the old goal grid, don't need it.
+        currentGrids[0].SelfDestruct(); 
 
-        // Make sure there are enough levels in the world.
-        while (world.GetActiveCount() < levelsInPlay)
+        // refill in the array.
+        // Set all grids to being active.
+        // Make all grids the appropriate color.
+        // Also set the current goalIndex
+        for (int i = 0; i < levelsInPlay; i++)
         {
-            int[,] tmpMap = world.BuildNextMap(levelsInPlay);
-            //world.DebugPrintMap(tmpMap);
-            world.AddLevel(tmpMap);
+            int[,] tmpMap = world.GetLevel(i).map;
             // Create a new grid using this info.
             GameObject newGuy = Instantiate(grid);
             Grid newGrid = newGuy.GetComponent<Grid>();
 
             newGrid.CreateGrid(tmpMap.GetLength(0), tmpMap.GetLength(1), tmpMap);
 
+            if (i < levelsInPlay - 1 && currentGrids[i + 1])
+            {
+                newGrid.transform.position = currentGrids[i + 1].transform.position;
+                newGrid.prevPosition = currentGrids[i + 1].prevPosition;
+                newGrid.goalPosition = currentGrids[i + 1].goalPosition;
+                newGrid.defaultPosition = currentGrids[i + 1].defaultPosition;
+                currentGrids[i+1].SelfDestruct();
+            }
+
             // set the title of the level
             newGrid.setTitle("Defalut");
             // All CG levels start out as active.
             newGrid.gameObject.SetActive(true);
-            // add the new grid to the level queue.
-            grids.Enqueue(newGrid);
-        }
-        
-        // Determine the location for the goal.
-        world.FindGoal();
-
-        // Fill in the array as needed.
-        for (int i = 0; i < levelsInPlay; i++)
-        {
-            
-            if (!currentGrids[i] || !currentGrids[i].isActiveAndEnabled)
-            {
-                try
-                {
-                    currentGrids[i] = grids.Dequeue();  // The Queue should be empty after this.
-                }
-                catch (InvalidOperationException)  // This should never happen in CG mode.
-                {
-                    // Happens if we wind up at the end of the queue.
-                    // Yeah that's pretty ducking firty, bucko.
-                    SceneManager.LoadScene(2);
-                }
-            }
-            
-        }
-
-        // Set all grids to being active.
-        // Make all grids the appropriate color.
-        // Also set the current goalIndex
-        for (int i = 0; i < currentGrids.Length; i++)
-        {
-            // This is impressively bad SEing.
-            if (i == goalIndex)
-            {
-             //   Debug.Log("Loc Before: "+currentGrids[i].transform.position.x+" : "+currentGrids[i].transform.position.y);
-                GameObject newGuy = Instantiate(grid);
-                Grid newGrid = newGuy.GetComponent<Grid>();
-                int[,] tmpMap = world.GetLevel(0).map;
-                
-                newGrid.CreateGrid(tmpMap.GetLength(0), tmpMap.GetLength(1), tmpMap);
-                newGrid.transform.position = currentGrids[i].transform.position;
-                newGrid.prevPosition = currentGrids[i].prevPosition;
-                newGrid.goalPosition = currentGrids[i].goalPosition;
-                newGrid.defaultPosition = currentGrids[i].defaultPosition;
-
-                
-                // set the title of the level
-                newGrid.setTitle("Infinity");
-                // All CG levels start out as active.
-                newGrid.gameObject.SetActive(true);
-                currentGrids[i].SelfDestruct();
-                currentGrids[i] = newGrid;
-             //   Debug.Log("Loc aFter: " + currentGrids[i].transform.position.x + " : " + currentGrids[i].transform.position.y);
-            }
-            currentGrids[i].UpdateColor(levelColors[i]);
+            newGrid.UpdateColor(levelColors[i]);
             // Set appropriate goal level
-            currentGrids[i].setGoalLevel(i == goalIndex);
+            newGrid.setGoalLevel(i == goalIndex);
+
+            currentGrids[i] = newGrid;
         }
+
         UpdateMoveable();
     }
 

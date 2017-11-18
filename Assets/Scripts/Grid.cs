@@ -25,6 +25,8 @@ public class Grid : MonoBehaviour {
 	public int width;
 	public int height;
 
+
+
 	/**
 	 * The position this grid should be at
 	 * since we lerp there.
@@ -49,6 +51,9 @@ public class Grid : MonoBehaviour {
 	 * moveable (active) grid.
 	 */
 	private bool moveable = true;
+
+    private bool isMoveHorz = false;
+    private bool isMoveVert = false;
 
 	public GameObject goal;
 
@@ -99,6 +104,8 @@ public class Grid : MonoBehaviour {
 
 	// Time taken between moves
 	public float moveCD;
+    // Time taken between moves if collision
+    public float collisionMoveCD;
 	// Time when the grid can move again.
 	float nextMove;
 	/**
@@ -107,12 +114,46 @@ public class Grid : MonoBehaviour {
 	 */
 	void FixedUpdate ()
     {
+        //Debug.Log("Move CD: " + moveCD);
 		float moveHorizontal = Input.GetAxisRaw ("Horizontal Top");
 		float moveVertical = Input.GetAxisRaw ("Vertical Top");
-       // if (moveHorizontal > 0 || moveVertical > 0)
-       //     Debug.Log("MH: " + moveHorizontal + " MV: " + moveVertical);
+
+        if (collision)
+        {
+            moveHorizontal = 0;
+            moveVertical = 0;
+        }
+
+        if (moveHorizontal == 0)
+        {
+            isMoveHorz = false;
+        }
+        if (moveVertical == 0)
+        {
+            isMoveVert = false;
+        }
+
+        if (moveHorizontal != 0 && !isMoveHorz && !isMoveVert)
+        {
+            isMoveHorz = true;
+        }
+        else if (moveVertical != 0 && !isMoveVert)
+        {
+            isMoveVert = true;
+        }
+
+        if (isMoveHorz)
+        {
+            moveVertical = 0;
+        }
+        if (isMoveVert)
+        {
+            moveHorizontal = 0;
+        } 
+        
 		Vector3 movement = new Vector3 (moveHorizontal, moveVertical, 0);
-		if (!moving && moveable && !(movement == Vector3.zero))
+
+        if (!moving && moveable && !(movement == Vector3.zero))
         {
 			nextMove = Time.time + moveCD;
 			prevPosition = goalPosition;
@@ -125,17 +166,23 @@ public class Grid : MonoBehaviour {
             if (nextMove >= Time.time)  // Only Lerp if there is a move to be processed.
             {
                 float rate = 1.0f - (nextMove - Time.time) / moveCD;
-                Debug.Log(rate + " PP: " + prevPosition.x + "," + prevPosition.y + " GP: " + goalPosition.x + "," + goalPosition.y + " TP: " + transform.position.x + "," + transform.position.y);
+                if (collision)
+                    rate = 1.0f - (nextMove - Time.time) / collisionMoveCD;
+                // Debug.Log(rate + " PP: " + prevPosition.x + "," + prevPosition.y + " GP: " + goalPosition.x + "," + goalPosition.y + " TP: " + transform.position.x + "," + transform.position.y);
                 transform.position = Vector3.Lerp(prevPosition, goalPosition, rate);
                 // Debug.Log(rate + " PP: " + prevPosition.x + "," + prevPosition.y + " GP: " + goalPosition.x + "," + goalPosition.y + " TP: " + transform.position.x + "," + transform.position.y);
                 if (goalPosition.x == transform.position.x && goalPosition.y == transform.position.y)
+                {
                     moving = false;
+                    collision = false;
+                }
             }
             else if (goalPosition.x != transform.position.x || goalPosition.y != transform.position.y)  // In case there is any last distanct to cover.
             {
-                Debug.Log(" PP: " + prevPosition.x + "," + prevPosition.y + " GP: " + goalPosition.x + "," + goalPosition.y + " TP: " + transform.position.x + "," + transform.position.y);
+            //    Debug.Log(" PP: " + prevPosition.x + "," + prevPosition.y + " GP: " + goalPosition.x + "," + goalPosition.y + " TP: " + transform.position.x + "," + transform.position.y);
                 transform.position = goalPosition;
                 moving = false;
+                collision = false;
             }
         }
 	}
@@ -200,13 +247,23 @@ public class Grid : MonoBehaviour {
 		return title;
 	}
 
+    // This is still a problem...now occasionally two pieces will get stuck in
+    // a collision, only seems to occur when a piece collides heading east into
+    // another piece.  Almost like the collision isn't full processed.
+    // After a while pressing Q generates an error as if the Grids are not
+    // there any more....
+    // Made a piece fire through, by pressing 'Q' while a piece was still moving.
+    // this could be the problem as when swapping it disables who can move.
 	void OnCollisionEnter2D(Collision2D other)
 	{
         if (!collision)
         {
             collision = true;
+            nextMove = Time.time + collisionMoveCD;
+            
             goalPosition = prevPosition;
-            float rate = 1.0f - (nextMove - Time.time) / moveCD;
+            prevPosition = transform.position;
+            float rate = 1.0f - (nextMove - Time.time) / collisionMoveCD;
             transform.position = Vector3.Lerp(transform.position, goalPosition, rate);
             // transform.position = prevPosition;
             // moving = false;
@@ -220,9 +277,11 @@ public class Grid : MonoBehaviour {
 	{
 		rb2d.mass = mass;	
 	}
+    // I wonder if setting this flag back to false here for non moving objects is causing the trouble...
     private void OnCollisionExit2D(Collision2D other)
     {
-        collision = false;
+        if (!moveable)
+            collision = false;
     }
 
 }

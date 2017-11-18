@@ -81,19 +81,20 @@ public class GameManager : MonoBehaviour {
 			//+ (Time.time - timeSinceLastCompletedLevel).ToString("N2") + "s");
 		timeSinceLastCompletedLevel = Time.time;
 		// update levels.
-		gh.NextLevel();
-//		gh.goalIndex = ++gh.goalIndex % gh.levelsInPlay;
-		currentStage++;
+
         
 		
         if (gameMode == 0)
         {
+            gh.NextLevel();
+            currentStage++;
             UpdateLevelsInPlay();
             UpdateHelpText();
             gh.UpdateLevels();
         }
         if (gameMode == 1)
         {
+            currentStage++;
             UpdateCGLevelsInPlay();
             UpdateHelpText();
             gh.UpdateCGLevels();
@@ -107,11 +108,13 @@ public class GameManager : MonoBehaviour {
      * Seems like we start off with one level, then at stage 2 add
      * a second level and then at stage 5 it goes to 3 visible levels.
 	 */
-	void UpdateLevelsInPlay() {
-		switch (currentStage) {
+	void UpdateLevelsInPlay()
+    {
+		switch (currentStage)
+        {
 		case 2:
 			gh.levelsInPlay++;
-               // gh.levelsInPlay++;
+                gh.levelsInPlay++;
                 break;
 		case 5:
 			gh.levelsInPlay++;

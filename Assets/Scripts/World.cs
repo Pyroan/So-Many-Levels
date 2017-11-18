@@ -236,10 +236,12 @@ public class World
         {
             
             MazeLevel level = levels[loc];
+           // Debug.Log("Loc:" + loc);
+           // DebugPrintMap(level.map, level.map.GetLength(0), level.map.GetLength(1));
 
             int startRow = (int)(height / 2 + level.offset.y - level.map.GetLength(1) / 2);
             int startCol = (int)(width / 2 + level.offset.x - level.map.GetLength(0) / 2);
-            Debug.Log("Level: " + loc+": sr:"+startRow+" sc: "+startCol);
+           // Debug.Log("Level: " + loc+": sr:"+startRow+" sc: "+startCol);
             int locX = 0;
             for (int row = startRow; row < height; row++)
             {
