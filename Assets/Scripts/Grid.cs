@@ -25,7 +25,8 @@ public class Grid : MonoBehaviour {
 	public int width;
 	public int height;
 
-
+    // Being swapped out.
+    public bool swappingOut = false;
 
 	/**
 	 * The position this grid should be at
@@ -118,7 +119,7 @@ public class Grid : MonoBehaviour {
 		float moveHorizontal = Input.GetAxisRaw ("Horizontal Top");
 		float moveVertical = Input.GetAxisRaw ("Vertical Top");
 
-        if (collision)
+        if (collision || swappingOut)
         {
             moveHorizontal = 0;
             moveVertical = 0;
@@ -247,13 +248,7 @@ public class Grid : MonoBehaviour {
 		return title;
 	}
 
-    // This is still a problem...now occasionally two pieces will get stuck in
-    // a collision, only seems to occur when a piece collides heading east into
-    // another piece.  Almost like the collision isn't full processed.
-    // After a while pressing Q generates an error as if the Grids are not
-    // there any more....
-    // Made a piece fire through, by pressing 'Q' while a piece was still moving.
-    // this could be the problem as when swapping it disables who can move.
+    // Collisions seem to be handled correctly now.
 	void OnCollisionEnter2D(Collision2D other)
 	{
         if (!collision)

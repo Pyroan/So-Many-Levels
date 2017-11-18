@@ -48,6 +48,9 @@ public class GridHandler : MonoBehaviour
 	 */
 	public int levelsInPlay;
 
+    // Make sure a Grid has finished all movement before switching who is active.
+    private bool activeLevelChange = false;
+
     /**
      * Only used in gameMode 1.
      * Manages the int array versions of the grids.
@@ -335,13 +338,25 @@ public class GridHandler : MonoBehaviour
 			currentMoveableLevel++;
 			currentMoveableLevel %= currentGrids.Length;
 			UpdateMoveable ();
-		} else if (Input.GetKeyDown (KeyCode.Q)) {
-			currentMoveableLevel--;
-			// Fking remainder operators instead of mod operators. C# pls.
-			currentMoveableLevel = 
-				((currentMoveableLevel % currentGrids.Length) + currentGrids.Length) % currentGrids.Length;
-			UpdateMoveable ();
+		} else if (Input.GetKeyDown (KeyCode.Q) && !activeLevelChange) {
+            activeLevelChange = true;
+            currentGrids[currentMoveableLevel].swappingOut = true;
 		}
+
+        if (activeLevelChange)
+        {
+            if (!currentGrids[currentMoveableLevel].collision && !currentGrids[currentMoveableLevel].moving)
+            {
+                currentGrids[currentMoveableLevel].setMoveable(false);
+                currentGrids[currentMoveableLevel].swappingOut = false;
+                currentMoveableLevel--;
+                // Fking remainder operators instead of mod operators. C# pls.
+                currentMoveableLevel =
+                    ((currentMoveableLevel % currentGrids.Length) + currentGrids.Length) % currentGrids.Length;
+                UpdateMoveable();
+                activeLevelChange = false;
+            }
+        }
 	}
 
 	/**
